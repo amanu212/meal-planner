@@ -1,69 +1,76 @@
-# React + TypeScript + Vite
+# Diabetes-friendly Meal Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + Vite app that helps users plan meals with diabetes-friendly options.
 
-Currently, two official plugins are available:
+## Tech Stack
+- React + TypeScript
+- React Router
+- CSS (custom) / Tailwind-ready structure
+- LocalStorage for profile/settings persistence
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features (current)
+- Public Landing → App Dashboard
+- Sidebar navigation (Dashboard, Plan, Saved, Profile, Settings, Logout)
+- Plan Meals: search, tag filters, meal selection w/ details
+- Saved Meals: cards with time & calories
+- Profile: identity, health metrics, diet tags, avatar (localStorage)
+- Settings: theme, units, notifications, dietary defaults, export/clear data
+- Logout: clears session/profile
 
-## Expanding the ESLint configuration
+## Project Setup
+```bash
+npm install
+npm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Folder Structure
+src/
+  assets/
+  components/
+  pages/
+  App.tsx
+  main.tsx
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+  Add screenshots (Landing, Dashboard, Plan, Saved, Profile, Settings) under a **Screenshots** section.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Google Doc outline (copy/paste)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Title:** FE Capstone – Part 4 Progress (Meal Planner)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**1) What I built this week**
+- Routing & navigation…
+- Plan Meals filters/selection…
+- Profile with localStorage…
+- Settings with theme/units…
+- Saved Meals grid…
+- (Attach 3–6 screenshots or a short Loom/GIF)
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**2) Challenges & how I handled them**
+- Router path issues → fixed by…
+- TypeScript props error in PlanMeals → solved by…
+- Missing CSS import (Vite) → resolved by…
+
+**3) Next steps (coming week)**
+- Persist Saved Meals + “Save” button from Plan
+- Small accessibility tweaks (alt text, focus styles)
+- Deploy preview to Netlify/Vercel
+- Write simple unit tests for utils (optional)
+
+**Links**
+- GitHub: <your repo URL>
+- Live preview (if any): <url>
+
+Set sharing to “Anyone with the link can view”.
+
+---
+
+# Final submission checklist
+
+- [ ] Repo is **public**, pushed, with README + screenshots.
+- [ ] Google Doc created, link share enabled.
+- [ ] Submit **both links** in the portal (GitHub + Google Doc).
+- [ ] Request **Manual QA** when ready (per the portal).
+- [ ] Optional: Deploy to Netlify/Vercel and add the URL to both README and Doc.
+
+If you want, send me your repo URL—I'll do a fast pre-QA sweep (README, broken links, basic lint, and any UI nits) before you submit.
