@@ -2,9 +2,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import hero from "../assets/hero-image.png";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function LandingPage() {
+  
+  usePageTitle("Landing");
   return (
+
     <main
       aria-label="Landing hero"
       style={{

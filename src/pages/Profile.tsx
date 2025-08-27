@@ -1,6 +1,7 @@
 // src/pages/Profile.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 type Activity = "Sedentary" | "Light" | "Moderate" | "Active";
 type Condition = "None" | "Prediabetes" | "Type 1" | "Type 2";
@@ -38,6 +39,7 @@ const DEFAULT_PROFILE: ProfileData = {
 const STORAGE_KEY = "mp_profile_v1";
 
 export default function Profile() {
+  usePageTitle("Profile");
   const [data, setData] = useState<ProfileData>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

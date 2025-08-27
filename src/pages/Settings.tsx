@@ -1,6 +1,7 @@
 // src/pages/Settings.tsx
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 type Theme = "light" | "dark" | "system";
 type Units = "metric" | "imperial";
@@ -50,6 +51,7 @@ const DEFAULTS: SettingsData = {
 };
 
 export default function Settings() {
+  usePageTitle("Settings");
   const [s, setS] = useState<SettingsData>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

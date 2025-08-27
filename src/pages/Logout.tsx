@@ -1,8 +1,10 @@
 // src/pages/Logout.tsx
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function Logout() {
+  usePageTitle("Logout");
   const navigate = useNavigate();
 
   useEffect(() => {

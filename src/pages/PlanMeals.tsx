@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import avocadoImg from "../assets/Avocado Toast.png";
 import mixedGreenImg from "../assets/Mixed green with protein.png";
 import herbChickenImg from "../assets/Herb Chicken with veggies.png";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 type Meal = {
   id: string;

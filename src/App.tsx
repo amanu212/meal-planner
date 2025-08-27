@@ -6,6 +6,7 @@ import SavedMeals from "./pages/SavedMeals";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Logout from "./pages/Logout";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -20,9 +21,10 @@ export default function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/logout" element={<Logout />} />
-
+      
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
