@@ -17,8 +17,11 @@ import avatarImg from "../assets/Welcome banner Avatar.png";
 import avocadoImg from "../assets/Avocado Toast.png";
 import mixedGreenImg from "../assets/Mixed green with protein.png";
 import herbChickenImg from "../assets/Herb Chicken with veggies.png";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const Dashboard = () => {
+
+  usePageTitle("Dashboard");
   const quickCards = [
     { img: planMealsImg, title: "Plan Meal" },
     { img: savedMealsImg, title: "Saved Meals" },

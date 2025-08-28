@@ -74,6 +74,7 @@ const MEALS: Meal[] = [
 ];
 
 export default function PlanMeals() {
+    usePageTitle("Plan Meals");
   // Search + filters
   const [query, setQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);

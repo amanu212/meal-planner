@@ -5,10 +5,9 @@ import hero from "../assets/hero-image.png";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function LandingPage() {
-  
   usePageTitle("Landing");
-  return (
 
+  return (
     <main
       aria-label="Landing hero"
       style={{
@@ -18,12 +17,13 @@ export default function LandingPage() {
         overflow: "hidden",
       }}
     >
-      {/* Background image */}
+      {/* Background image (decorative) */}
       <img
         src={hero}
         alt=""
         aria-hidden="true"
         loading="lazy"
+        decoding="async"
         style={{
           position: "absolute",
           inset: 0,
@@ -35,7 +35,7 @@ export default function LandingPage() {
       />
 
       {/* Top-right nav chips */}
-      <nav
+      <header
         aria-label="Top navigation"
         style={{
           position: "absolute",
@@ -46,15 +46,23 @@ export default function LandingPage() {
           zIndex: 1,
         }}
       >
-        <Link to="/" className="chip">Home</Link>
-        {/* Point Features/Contact anywhere you want; examples below */}
-        <Link to="/dashboard" className="chip">Features</Link>
-        <Link to="/dashboard" className="chip">Contact</Link>
-        <Link to="/dashboard" className="chip">Login / Signup</Link>
-      </nav>
+        <Link to="/" className="chip" aria-current="page">
+          Home
+        </Link>
+        <Link to="/dashboard" className="chip">
+          Features
+        </Link>
+        <Link to="/dashboard" className="chip">
+          Contact
+        </Link>
+        <Link to="/dashboard" className="chip">
+          Login / Signup
+        </Link>
+      </header>
 
       {/* Hero copy */}
       <section
+        aria-label="Intro"
         style={{
           position: "relative",
           zIndex: 1,
@@ -62,16 +70,26 @@ export default function LandingPage() {
           maxWidth: 900,
         }}
       >
-        <h1 style={{ fontSize: 64, lineHeight: 1.1, fontWeight: 800, marginBottom: 16 }}>
+        <h1
+          style={{
+            fontSize: 64,
+            lineHeight: 1.1,
+            fontWeight: 800,
+            marginBottom: 16,
+            letterSpacing: -0.5,
+          }}
+        >
           Plan Your Meals. Stay Healthy.
         </h1>
         <p style={{ fontSize: 22, opacity: 0.95, marginBottom: 28 }}>
-          Create custom meal plans that fit your lifestyle, health goals, and budget.
+          Create custom meal plans that fit your lifestyle, health goals, and
+          budget.
         </p>
 
         {/* CTA navigates into the app */}
         <Link
           to="/dashboard"
+          className="cta"
           style={{
             display: "inline-block",
             background: "#22c55e",
@@ -79,6 +97,7 @@ export default function LandingPage() {
             padding: "14px 22px",
             borderRadius: 12,
             fontWeight: 700,
+            textDecoration: "none",
           }}
         >
           Get Started
@@ -88,16 +107,23 @@ export default function LandingPage() {
       {/* Minimal chip styles to match your UI without a CSS file */}
       <style>
         {`
-        .chip {
-          display:inline-block;
-          padding:10px 16px;
-          border-radius: 9999px;
-          background: rgba(255,255,255,0.85);
-          color:#0b1220;
-          text-decoration:none;
-          font-weight:600;
-        }
-        .chip:hover { background: white; }
+          .chip {
+            display:inline-block;
+            padding:10px 16px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.85);
+            color:#0b1220;
+            text-decoration:none;
+            font-weight:600;
+            transition: transform .06s ease, background .12s ease;
+          }
+          .chip:hover { background: #fff; transform: translateY(-1px); }
+          .chip:focus-visible { outline: 3px solid #22c55e; outline-offset: 2px; }
+
+          .cta:focus-visible { outline: 3px solid #22c55e; outline-offset: 2px; }
+          @media (max-width: 640px) {
+            h1 { font-size: 40px !important; }
+          }
         `}
       </style>
     </main>
