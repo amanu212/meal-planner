@@ -1,19 +1,25 @@
-import { useMemo, useState } from "react";
+// src/pages/PlanMeals.tsx
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import { usePageTitle } from "../hooks/usePageTitle";
+import { saveMeal, type SavedMeal } from "../utils/savedMeals";
 
-// Images you already have in /src/assets
 import avocadoImg from "../assets/Avocado Toast.png";
 import mixedGreenImg from "../assets/Mixed green with protein.png";
 import herbChickenImg from "../assets/Herb Chicken with veggies.png";
-import { usePageTitle } from "../hooks/usePageTitle";
 
 type Meal = {
   id: string;
   title: string;
   img: string;
   categories: ("Breakfast" | "Lunch" | "Dinner" | "Low Carb")[];
+  time: string;      // e.g. "10 min"
+  calories: number;  // e.g. 280
+  tag: "Breakfast" | "Lunch" | "Dinner" | "Snack";
+  // NEW: richer content
   ingredients: string[];
-  instructions: string[];
+  steps: string[];
 };
 
 const ALL_CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Low Carb"] as const;
@@ -24,15 +30,20 @@ const MEALS: Meal[] = [
     title: "Avocado Toast",
     img: avocadoImg,
     categories: ["Breakfast", "Low Carb"],
+    time: "10 min",
+    calories: 280,
+    tag: "Breakfast",
     ingredients: [
-      "2 slices whole-grain bread, toasted",
-      "1 ripe avocado",
-      "Salt & pepper to taste",
-      "Optional: chili flakes, lemon juice",
+      "1 slice whole-grain bread",
+      "1/2 ripe avocado",
+      "1 egg (optional)",
+      "Pinch of salt & pepper",
+      "Squeeze of lemon (optional)",
     ],
-    instructions: [
-      "Mash avocado with a pinch of salt & pepper.",
-      "Spread on toast; add lemon juice or chili flakes if you like.",
+    steps: [
+      "Toast the bread to your liking.",
+      "Mash avocado; season with salt, pepper, and lemon.",
+      "Spread on toast. Top with a fried or poached egg, if using.",
       "Serve immediately.",
     ],
   },
@@ -41,16 +52,21 @@ const MEALS: Meal[] = [
     title: "Mixed green with proteins",
     img: mixedGreenImg,
     categories: ["Lunch", "Low Carb"],
+    time: "15 min",
+    calories: 500,
+    tag: "Lunch",
     ingredients: [
       "2 cups mixed greens",
-      "1/2 cup grilled chicken or tofu",
-      "Cherry tomatoes, sliced cucumbers",
-      "Olive oil, lemon, salt & pepper",
+      "1/2 cup cooked chicken or chickpeas",
+      "1/4 avocado, sliced",
+      "A handful of cherry tomatoes, halved",
+      "2 tbsp vinaigrette (olive oil + lemon)",
+      "Salt & pepper to taste",
     ],
-    instructions: [
-      "Toss greens with tomatoes & cucumbers.",
-      "Add protein of choice.",
-      "Dress with olive oil, lemon, salt & pepper.",
+    steps: [
+      "Add greens to a bowl and toss with vinaigrette.",
+      "Top with protein, avocado, and tomatoes.",
+      "Season to taste and serve.",
     ],
   },
   {
@@ -58,59 +74,74 @@ const MEALS: Meal[] = [
     title: "Herb Chicken and Veggies",
     img: herbChickenImg,
     categories: ["Dinner"],
+    time: "25 min",
+    calories: 350,
+    tag: "Dinner",
     ingredients: [
-      "2 chicken breasts",
-      "1 cup mixed veggies (zucchini, peppers, carrots)",
+      "1 chicken breast",
+      "1 cup mixed veggies (zucchini, carrots, peppers)",
       "1 tbsp olive oil",
-      "1 tsp mixed herbs, salt & pepper",
+      "1 tsp mixed dried herbs (oregano, thyme)",
+      "Salt & pepper",
     ],
-    instructions: [
-      "Preheat grill or skillet to medium-high.",
-      "Season chicken & veggies with oil, herbs, salt & pepper.",
-      "Cook chicken 4–6 min per side; sauté/roast veggies until tender.",
-      "Serve hot.",
+    steps: [
+      "Season chicken with herbs, salt, and pepper.",
+      "Sauté chicken in olive oil 4–5 min per side until cooked through.",
+      "In the same pan, sauté veggies until tender-crisp.",
+      "Plate chicken with veggies and serve.",
     ],
   },
 ];
 
 export default function PlanMeals() {
-    usePageTitle("Plan Meals");
-  // Search + filters
+  usePageTitle("Plan Meals");
+  const location = useLocation();
+
+  // Search + filter + selection + save toast
   const [query, setQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  // Which meal is selected for the right-side detail panel
   const [selectedId, setSelectedId] = useState<string | null>(MEALS[0].id);
+  const [savedMsg, setSavedMsg] = useState<string | null>(null);
 
-  // Filtered + searched meals
+  // Preselect from /plan?id=<mealId> (and support router state { selectId })
+  useEffect(() => {
+    const queryId = new URLSearchParams(location.search).get("id");
+    const stateId = (location.state as any)?.selectId as string | undefined;
+    const wanted = queryId || stateId;
+    if (wanted && MEALS.some((m) => m.id === wanted)) {
+      setSelectedId(wanted);
+    }
+    // run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Apply filters + search
   const filteredMeals = useMemo(() => {
     let res = MEALS;
-
     if (activeFilters.length) {
       res = res.filter((m) =>
         activeFilters.every((f) => m.categories.includes(f as any))
       );
     }
-
     if (query.trim()) {
       const q = query.toLowerCase();
-      res = res.filter(
-        (m) =>
-          m.title.toLowerCase().includes(q) ||
-          m.ingredients.some((ing) => ing.toLowerCase().includes(q))
-      );
+      res = res.filter((m) => m.title.toLowerCase().includes(q));
     }
-
     return res;
   }, [query, activeFilters]);
 
-  // Ensure selected stays valid when filters/search change
-  const selectedMeal =
-    filteredMeals.find((m) => m.id === selectedId) || filteredMeals[0] || null;
+  // Keep a valid selection as results change
+  useEffect(() => {
+    if (filteredMeals.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+    if (!filteredMeals.find((m) => m.id === selectedId)) {
+      setSelectedId(filteredMeals[0].id);
+    }
+  }, [filteredMeals, selectedId]);
 
-  // If nothing matches, clear selection
-  if (selectedMeal && selectedMeal.id !== selectedId) {
-    setSelectedId(selectedMeal.id);
-  }
+  const selectedMeal = filteredMeals.find((m) => m.id === selectedId) || null;
 
   const toggleFilter = (tag: string) => {
     setActiveFilters((prev) =>
@@ -118,14 +149,27 @@ export default function PlanMeals() {
     );
   };
 
+  const onSave = () => {
+    if (!selectedMeal) return;
+    const payload: SavedMeal = {
+      id: selectedMeal.id,
+      title: selectedMeal.title,
+      tag: selectedMeal.tag,
+      time: selectedMeal.time,
+      calories: selectedMeal.calories,
+      img: selectedMeal.img,
+    };
+    saveMeal(payload);
+    setSavedMsg("Added to Saved Meals");
+    setTimeout(() => setSavedMsg(null), 1600);
+  };
+
   return (
     <div className="layout">
-      {/* Left Sidebar */}
       <aside className="sidebar">
         <Sidebar />
       </aside>
 
-      {/* Main content */}
       <main className="content">
         <h2 className="page-title" style={{ textAlign: "center" }}>
           Plan your Meals
@@ -186,6 +230,7 @@ export default function PlanMeals() {
                     fontWeight: 600,
                     cursor: "pointer",
                   }}
+                  aria-pressed={active}
                 >
                   {cat} {active ? "×" : ""}
                 </button>
@@ -194,7 +239,7 @@ export default function PlanMeals() {
           </div>
         </div>
 
-        {/* Two-column content area */}
+        {/* Two-column layout */}
         <div
           style={{
             display: "grid",
@@ -203,7 +248,7 @@ export default function PlanMeals() {
             alignItems: "start",
           }}
         >
-          {/* Left: Meal cards grid */}
+          {/* Left: grid of meals */}
           <section>
             <div
               className="grid"
@@ -227,10 +272,13 @@ export default function PlanMeals() {
                       border: isActive ? "2px solid #319795" : "1px solid #eee",
                       cursor: "pointer",
                     }}
+                    aria-pressed={isActive}
                   >
                     <img
                       src={m.img}
                       alt={m.title}
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         width: "100%",
                         height: 120,
@@ -253,13 +301,15 @@ export default function PlanMeals() {
             )}
           </section>
 
-          {/* Right: Details panel */}
-          <section>
+          {/* Right: details of selected meal */}
+          <section style={{ fontSize: 15, lineHeight: 1.7 }}>
             {selectedMeal ? (
               <div>
                 <img
                   src={selectedMeal.img}
                   alt={selectedMeal.title}
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: "100%",
                     maxWidth: 480,
@@ -273,12 +323,54 @@ export default function PlanMeals() {
                   {selectedMeal.title}
                 </h3>
 
+                {/* meta chips */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    justifyContent: "center",
+                    marginTop: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      borderRadius: 999,
+                      padding: "6px 10px",
+                      background: "#f3f4f6",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {selectedMeal.tag}
+                  </span>
+                  <span
+                    style={{
+                      borderRadius: 999,
+                      padding: "6px 10px",
+                      background: "#f3f4f6",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {selectedMeal.time}
+                  </span>
+                  <span
+                    style={{
+                      borderRadius: 999,
+                      padding: "6px 10px",
+                      background: "#f3f4f6",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {selectedMeal.calories} cal
+                  </span>
+                </div>
+
+                {/* rich content */}
                 <div style={{ display: "grid", gap: 16, marginTop: 12 }}>
                   <div>
                     <h4 style={{ marginBottom: 8 }}>Ingredient List</h4>
                     <ul style={{ paddingLeft: 18, margin: 0 }}>
-                      {selectedMeal.ingredients.map((ing, i) => (
-                        <li key={i}>{ing}</li>
+                      {selectedMeal.ingredients.map((it) => (
+                        <li key={it}>{it}</li>
                       ))}
                     </ul>
                   </div>
@@ -286,14 +378,43 @@ export default function PlanMeals() {
                   <div>
                     <h4 style={{ marginBottom: 8 }}>Instructions</h4>
                     <ol style={{ paddingLeft: 18, margin: 0 }}>
-                      {selectedMeal.instructions.map((step, i) => (
-                        <li key={i} style={{ marginBottom: 6 }}>
-                          {step}
-                        </li>
+                      {selectedMeal.steps.map((s, i) => (
+                        <li key={i}>{s}</li>
                       ))}
                     </ol>
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={onSave}
+                  style={{
+                    marginTop: 12,
+                    borderRadius: 12,
+                    padding: "10px 14px",
+                    background: "#111827",
+                    color: "white",
+                    fontWeight: 700,
+                  }}
+                >
+                  Save to Saved Meals
+                </button>
+
+                {savedMsg && (
+                  <div
+                    role="status"
+                    style={{
+                      marginTop: 8,
+                      padding: "8px 12px",
+                      background: "#dcfce7",
+                      color: "#065f46",
+                      borderRadius: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {savedMsg}
+                  </div>
+                )}
               </div>
             ) : (
               <p style={{ color: "#666" }}>

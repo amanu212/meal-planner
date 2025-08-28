@@ -1,12 +1,11 @@
 // src/components/Sidebar.tsx
 import { NavLink } from "react-router-dom";
-import React from "react";
 
 type NavItem = { to: string; label: string; icon?: string };
 
 const MAIN: NavItem[] = [
   { to: "/dashboard", label: "Home",       icon: "🏠" },
-  { to: "/plan",      label: "Plan Meals", icon: "🥦" },
+  { to: "/plan",      label: "Plan Meals", icon: "🥗" },
   { to: "/saved",     label: "Saved Meals",icon: "💾" },
   { to: "/profile",   label: "Profile",    icon: "👤" },
 ];
@@ -17,6 +16,7 @@ const SECONDARY: NavItem[] = [
 ];
 
 export default function Sidebar() {
+  // NavLink gives us isActive — append .active for styling
   const link = ({ isActive }: { isActive: boolean }) =>
     "nav-link" + (isActive ? " active" : "");
 
@@ -37,7 +37,7 @@ export default function Sidebar() {
 
       <nav className="nav" aria-label="Secondary">
         {SECONDARY.map((item) => (
-          <NavLink key={item.to} to={item.to} className={link}>
+          <NavLink key={item.to} to={item.to} end className={link}>
             <span aria-hidden="true" style={{ marginRight: 8 }}>{item.icon}</span>
             {item.label}
           </NavLink>

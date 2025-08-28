@@ -1,3 +1,4 @@
+/* src/components/Sidebar.css */
 .sidebar {
   border-radius: 16px;
   background: #fff;
@@ -19,15 +20,25 @@
 }
 
 .nav-link {
-  display: block;
-  padding: 8px 12px;
-  border-radius: 10px;
+  display: flex;             /* align icon + label */
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
   text-decoration: none;
   color: #111827;
+  font-weight: 600;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
 }
 
 .nav-link:hover { background: #f3f4f6; }
 
+.nav-link:focus-visible {
+  outline: 2px solid #10b981;   /* accessibility */
+  outline-offset: 2px;
+}
+
+/* Active highlight */
 .nav-link.active {
   background: #111827;
   color: #fff;

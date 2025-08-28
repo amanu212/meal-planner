@@ -1,5 +1,5 @@
 // src/pages/LandingPage.tsx
-import React from "react";
+
 import { Link } from "react-router-dom";
 import hero from "../assets/hero-image.png";
 import { usePageTitle } from "../hooks/usePageTitle";
