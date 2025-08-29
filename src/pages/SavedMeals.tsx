@@ -4,40 +4,42 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import MealCard from "../components/MealCard";
 import { usePageTitle } from "../hooks/usePageTitle";
+import {
+  loadSavedMeals,
+  removeMeal,
+  clearMeals,
+  type SavedMeal,
+} from "../utils/savedMeals";
 
-type Saved = {
-  id: string;
-  title: string;
-  tag: "Breakfast" | "Lunch" | "Dinner" | "Snack";
-  time: string;        // e.g., "25 min"
-  calories: number;    // e.g., 350
-  img: string;         // can be imported asset path or remote URL
-};
-
-const STORAGE_KEY = "mp_saved_v1";
-
-function loadSaved(): Saved[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Saved[]) : [];
-  } catch {
-    return [];
-  }
-}
+const Chip: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <span
+    style={{
+      borderRadius: 999,
+      padding: "6px 10px",
+      background: "#f3f4f6",
+      fontWeight: 700,
+      fontSize: 12,
+    }}
+  >
+    {children}
+  </span>
+);
 
 export default function SavedMeals() {
   usePageTitle("Saved Meals");
 
-  const [saved, setSaved] = React.useState<Saved[]>(() => loadSaved());
+  const [saved, setSaved] = React.useState<SavedMeal[]>(() => loadSavedMeals());
 
-  // persist on change
-  React.useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  }, [saved]);
+  const onRemove = (id: string) => {
+    removeMeal(id);
+    setSaved(loadSavedMeals());
+  };
 
-  const remove = (id: string) => setSaved((s) => s.filter((m) => m.id !== id));
-  const clearAll = () => {
-    if (confirm("Remove all saved meals?")) setSaved([]);
+  const onClearAll = () => {
+    if (confirm("Remove all saved meals?")) {
+      clearMeals();
+      setSaved([]);
+    }
   };
 
   const isEmpty = saved.length === 0;
@@ -53,6 +55,7 @@ export default function SavedMeals() {
           <h2 className="page-title" style={{ marginBottom: 0 }}>
             Saved Meals
           </h2>
+
           <span
             style={{
               background: "#eef2ff",
@@ -68,7 +71,7 @@ export default function SavedMeals() {
 
           {!isEmpty && (
             <button
-              onClick={clearAll}
+              onClick={onClearAll}
               style={{
                 marginLeft: "auto",
                 borderRadius: 10,
@@ -131,29 +134,49 @@ export default function SavedMeals() {
                 }}
               >
                 <MealCard img={m.img} title={m.title} />
-                <div style={{ marginTop: 8, fontSize: 14, color: "#374151" }}>
-                  <div>
-                    Tag: <strong>{m.tag}</strong>
-                  </div>
-                  <div>
-                    Details: {m.time} · {m.calories} cal
-                  </div>
+
+                {/* Chips / badges */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    marginTop: 8,
+                    alignItems: "center",
+                  }}
+                >
+                  {m.tag && <Chip>{m.tag}</Chip>}
+                  {m.time && <Chip>{m.time}</Chip>}
+                  {typeof m.calories === "number" && (
+                    <Chip>{Math.round(m.calories)} cal</Chip>
+                  )}
+                  {typeof m.carbs === "number" && (
+                    <Chip>{Math.round(m.carbs)} g carbs</Chip>
+                  )}
+                  {typeof m.fiber === "number" && (
+                    <Chip>{Math.round(m.fiber)} g fiber</Chip>
+                  )}
                 </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                  <button
+
+                {/* Source link if available */}
+                {m.url && (
+                  <a
+                    href={m.url}
+                    target="_blank"
+                    rel="noreferrer"
                     style={{
-                      borderRadius: 10,
-                      padding: "8px 12px",
-                      background: "#111827",
-                      color: "white",
-                      fontSize: 14,
+                      display: "inline-block",
+                      marginTop: 8,
                       fontWeight: 700,
-                      flex: "0 0 auto",
+                      color: "#2563eb",
+                      textDecoration: "none",
                     }}
-                    onClick={() => alert(`Open details for: ${m.title}`)}
                   >
-                    View Details
-                  </button>
+                    Open recipe →
+                  </a>
+                )}
+
+                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                   <button
                     style={{
                       borderRadius: 10,
@@ -163,7 +186,7 @@ export default function SavedMeals() {
                       fontSize: 14,
                       fontWeight: 700,
                     }}
-                    onClick={() => remove(m.id)}
+                    onClick={() => onRemove(m.id)}
                   >
                     Remove
                   </button>
